@@ -1,0 +1,287 @@
+import { useState } from 'react';
+import { useSales } from '@/store/SalesContext';
+import { Sale, createEmptyDocuments, defaultGrp, PaymentMode, ARStatusType, BANK_DOCS, ACCOUNTING_DOCS, DEALER_DOCS, LTO_DOCS } from '@/types/sales';
+import { X } from 'lucide-react';
+
+interface AddSaleModalProps {
+  onClose: () => void;
+}
+
+const PAGES_DOCS = [
+  { title: 'Bank', docs: BANK_DOCS, key: 'bank' as const },
+  { title: 'Accounting', docs: ACCOUNTING_DOCS, key: 'accounting' as const },
+  { title: 'Dealer', docs: DEALER_DOCS, key: 'dealer' as const },
+  { title: 'LTO', docs: LTO_DOCS, key: 'lto' as const },
+];
+
+export default function AddSaleModal({ onClose }: AddSaleModalProps) {
+  const { addSale, settings } = useSales();
+  const [step, setStep] = useState<'info' | 'docs'>('info');
+  const [docPage, setDocPage] = useState(0);
+
+  const [form, setForm] = useState({
+    cs: '', engineNo: '', chassisNo: '', brand: '', model: '',
+    cost: '', branch: 'Carmona', clientName: '', contact: '', address: '',
+    rate: '', modeOfPayment: 'cash' as PaymentMode, groupNumber: 1,
+  });
+  const [grp, setGrp] = useState<number[]>(defaultGrp(settings.groupCount));
+  const [docs, setDocs] = useState(createEmptyDocuments());
+  const [arStatus, setArStatus] = useState<ARStatusType>('pending');
+
+  const updateField = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
+
+  const totalGrp = grp.reduce((a, b) => a + b, 0);
+
+  const isValid = form.cs && form.engineNo && form.chassisNo && form.brand && form.model && form.cost && form.clientName && form.contact && form.address;
+
+  const handleSave = () => {
+    const sale: Sale = {
+      id: crypto.randomUUID(),
+      cs: form.cs,
+      engineNo: form.engineNo,
+      chassisNo: form.chassisNo,
+      brand: form.brand,
+      model: form.model,
+      rate: Number(form.rate) || 0,
+      cost: Number(form.cost) || 0,
+      orCr: '',
+      dateRelease: new Date().toISOString().split('T')[0],
+      branch: form.branch,
+      clientName: form.clientName,
+      contact: form.contact,
+      address: form.address,
+      grp,
+      bankStatus: 'pending',
+      accountingStatus: 'pending',
+      dealerStatus: 'pending',
+      ltoStatus: 'pending',
+      arStatus,
+      modeOfPayment: form.modeOfPayment,
+      groupNumber: form.groupNumber,
+      documents: docs,
+    };
+    addSale(sale);
+    onClose();
+  };
+
+  const toggleDoc = (key: keyof typeof docs, doc: string) => {
+    setDocs(prev => ({
+      ...prev,
+      [key]: { ...prev[key], [doc]: !prev[key][doc] },
+    }));
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 bg-foreground/20 backdrop-blur-sm">
+      <div className="bg-card border border-border rounded w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <h3 className="font-semibold text-lg">Add New Sale {step === 'docs' ? '— Documents' : ''}</h3>
+          <button onClick={onClose} className="p-1 hover:bg-accent rounded"><X className="w-4 h-4" /></button>
+        </div>
+
+        {step === 'info' && (
+          <div className="p-4 space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-2">Vehicle Info</h4>
+                {[
+                  { key: 'cs', label: 'CS# *' },
+                  { key: 'engineNo', label: 'Engine# *' },
+                  { key: 'chassisNo', label: 'Chassis# *' },
+                  { key: 'brand', label: 'Brand *' },
+                ].map(f => (
+                  <div key={f.key} className="mb-2">
+                    <label className="text-xs text-muted-foreground">{f.label}</label>
+                    <input
+                      className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+                      value={(form as any)[f.key]}
+                      onChange={e => updateField(f.key, e.target.value)}
+                    />
+                  </div>
+                ))}
+                <div className="mb-2">
+                  <label className="text-xs text-muted-foreground">Model *</label>
+                  <select
+                    className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background"
+                    value={form.model}
+                    onChange={e => updateField('model', e.target.value)}
+                  >
+                    <option value="">Select model</option>
+                    {settings.vehicleModels.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                </div>
+                <div className="mb-2">
+                  <label className="text-xs text-muted-foreground">Unit Cost *</label>
+                  <input
+                    type="number"
+                    className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+                    value={form.cost}
+                    onChange={e => updateField('cost', e.target.value)}
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="text-xs text-muted-foreground">Rate</label>
+                  <input
+                    type="number"
+                    className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+                    value={form.rate}
+                    onChange={e => updateField('rate', e.target.value)}
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="text-xs text-muted-foreground">Branch</label>
+                  <input
+                    className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background"
+                    value={form.branch}
+                    onChange={e => updateField('branch', e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-2">Client Info</h4>
+                {[
+                  { key: 'clientName', label: 'Name *' },
+                  { key: 'contact', label: 'Contact *' },
+                  { key: 'address', label: 'Address *' },
+                ].map(f => (
+                  <div key={f.key} className="mb-2">
+                    <label className="text-xs text-muted-foreground">{f.label}</label>
+                    <input
+                      className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+                      value={(form as any)[f.key]}
+                      onChange={e => updateField(f.key, e.target.value)}
+                    />
+                  </div>
+                ))}
+
+                <div className="mb-2">
+                  <label className="text-xs text-muted-foreground">Mode of Payment</label>
+                  <select
+                    className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background"
+                    value={form.modeOfPayment}
+                    onChange={e => updateField('modeOfPayment', e.target.value)}
+                  >
+                    <option value="cash">Cash</option>
+                    <option value="fin">FIN</option>
+                    <option value="copo">COPO</option>
+                    <option value="bank_po">BANK PO</option>
+                  </select>
+                </div>
+
+                <div className="mb-2">
+                  <label className="text-xs text-muted-foreground">Group Number</label>
+                  <input
+                    type="number"
+                    min={1}
+                    className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background"
+                    value={form.groupNumber}
+                    onChange={e => updateField('groupNumber', e.target.value)}
+                  />
+                </div>
+
+                <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-2 mt-4">Group Profit</h4>
+                {grp.map((g, i) => (
+                  <div key={i} className="mb-2">
+                    <label className="text-xs text-muted-foreground">GRP{i + 1}</label>
+                    <input
+                      type="number"
+                      className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background"
+                      value={g || ''}
+                      onChange={e => {
+                        const newGrp = [...grp];
+                        newGrp[i] = Number(e.target.value) || 0;
+                        setGrp(newGrp);
+                      }}
+                    />
+                  </div>
+                ))}
+                <div className="text-sm font-medium">Total: ₱{totalGrp.toLocaleString()}</div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-border">
+              <button onClick={onClose} className="px-4 py-1.5 text-sm border border-border rounded hover:bg-accent">Cancel</button>
+              <button
+                onClick={() => isValid && setStep('docs')}
+                disabled={!isValid}
+                className="px-4 py-1.5 text-sm bg-primary text-primary-foreground rounded hover:opacity-90 disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 'docs' && (
+          <div className="p-4 space-y-4">
+            <div className="flex items-center gap-2">
+              {PAGES_DOCS.map((p, i) => (
+                <button
+                  key={p.key}
+                  onClick={() => setDocPage(i)}
+                  className={`px-3 py-1 text-xs rounded font-medium transition-colors ${i === docPage ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-accent'}`}
+                >
+                  {p.title}
+                </button>
+              ))}
+            </div>
+
+            <div className="space-y-1.5">
+              <h4 className="font-semibold text-sm">{PAGES_DOCS[docPage].title} Documents</h4>
+              {PAGES_DOCS[docPage].docs.map(doc => (
+                <label key={doc} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent/50 px-2 py-1 rounded">
+                  <input
+                    type="checkbox"
+                    checked={docs[PAGES_DOCS[docPage].key][doc] || false}
+                    onChange={() => toggleDoc(PAGES_DOCS[docPage].key, doc)}
+                    className="rounded border-border"
+                  />
+                  {doc}
+                </label>
+              ))}
+            </div>
+
+            {docPage === PAGES_DOCS.length - 1 && (
+              <div className="pt-2 border-t border-border">
+                <label className="text-sm font-medium">AR Status</label>
+                <select
+                  className="ml-2 text-sm border border-border rounded px-2 py-1 bg-card"
+                  value={arStatus}
+                  onChange={e => setArStatus(e.target.value as ARStatusType)}
+                >
+                  <option value="pending">Pending</option>
+                  <option value="paid">Paid</option>
+                </select>
+              </div>
+            )}
+
+            <div className="flex justify-between pt-2">
+              <button
+                onClick={() => docPage > 0 ? setDocPage(docPage - 1) : setStep('info')}
+                className="px-4 py-1.5 text-sm border border-border rounded hover:bg-accent"
+              >
+                Back
+              </button>
+              {docPage === PAGES_DOCS.length - 1 ? (
+                <button
+                  onClick={handleSave}
+                  className="px-4 py-1.5 text-sm bg-primary text-primary-foreground rounded hover:opacity-90"
+                >
+                  Save
+                </button>
+              ) : (
+                <button
+                  onClick={() => setDocPage(docPage + 1)}
+                  className="px-4 py-1.5 text-sm bg-primary text-primary-foreground rounded hover:opacity-90"
+                >
+                  Next
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
