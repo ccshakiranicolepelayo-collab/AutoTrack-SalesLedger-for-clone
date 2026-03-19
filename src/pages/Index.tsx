@@ -23,7 +23,7 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Sidebar onNavigate={scrollTo} onSettingsClick={() => navigate('/settings')} />
+      <Sidebar onNavigate={scrollTo} onSettingsClick={() => navigate('/settings')} onRouteNavigate={(r) => navigate(r)} />
 
       {/* Sticky header */}
       <header className="sticky top-0 z-20 bg-card border-b border-border px-4 py-2.5 flex items-center justify-between ml-0">
