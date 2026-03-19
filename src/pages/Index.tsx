@@ -31,15 +31,13 @@ export default function Index() {
           <h1 className="text-base font-semibold tracking-tight">Vehicle Sales Tracker</h1>
         </div>
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              className="pl-8 pr-3 py-1.5 text-sm border border-border rounded bg-background focus:outline-none focus:ring-1 focus:ring-ring w-64"
-              placeholder="Global search..."
-              value={globalSearch}
-              onChange={e => setGlobalSearch(e.target.value)}
-            />
-          </div>
+          <button
+            onClick={() => navigate('/full-table')}
+            className="flex items-center gap-1.5 px-4 py-1.5 border border-border text-sm font-medium rounded hover:bg-accent transition-colors"
+          >
+            <Table2 className="w-4 h-4" />
+            View Full Table
+          </button>
           <button
             onClick={() => setShowAddSale(true)}
             className="flex items-center gap-1.5 px-4 py-1.5 bg-primary text-primary-foreground text-sm font-medium rounded hover:opacity-90 transition-opacity"

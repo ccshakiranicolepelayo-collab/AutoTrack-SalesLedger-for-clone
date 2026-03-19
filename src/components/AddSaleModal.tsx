@@ -288,7 +288,7 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
               ))}
             </div>
 
-            {/* Progress */}
+            {/* Progress + Check All */}
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                 <div
@@ -296,7 +296,21 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
                   style={{ width: `${totalCount > 0 ? (checkedCount / totalCount) * 100 : 0}%` }}
                 />
               </div>
-              <span>{checkedCount}/{totalCount} checked</span>
+              <span>{checkedCount}/{totalCount}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  const key = PAGES_DOCS[docPage].key;
+                  const allChecked = checkedCount === totalCount;
+                  setDocs(prev => ({
+                    ...prev,
+                    [key]: Object.fromEntries(PAGES_DOCS[docPage].docs.map(d => [d, !allChecked])),
+                  }));
+                }}
+                className="px-2 py-0.5 text-xs border border-border rounded hover:bg-accent transition-colors"
+              >
+                {checkedCount === totalCount ? 'Uncheck All' : 'Check All'}
+              </button>
             </div>
 
             {/* Table-style checklist */}
