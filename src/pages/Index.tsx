@@ -15,7 +15,7 @@ export default function Index() {
   const navigate = useNavigate();
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const [showAddSale, setShowAddSale] = useState(false);
-  const [globalSearch, setGlobalSearch] = useState('');
+  
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });

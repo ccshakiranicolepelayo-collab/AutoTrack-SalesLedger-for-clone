@@ -188,6 +188,27 @@ export default function SaleDetailPanel({ sale, onClose }: SaleDetailPanelProps)
             ))}
           </div>
 
+          {/* Check All */}
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => {
+                const key = currentPage.key;
+                const allChecked = currentPage.docs.every(d => localSale.documents[key][d]);
+                setLocalSale(prev => ({
+                  ...prev,
+                  documents: {
+                    ...prev.documents,
+                    [key]: Object.fromEntries(currentPage.docs.map(d => [d, !allChecked])),
+                  },
+                }));
+              }}
+              className="px-2 py-0.5 text-xs border border-border rounded hover:bg-accent transition-colors"
+            >
+              {currentPage.docs.every(d => localSale.documents[currentPage.key][d]) ? 'Uncheck All' : 'Check All'}
+            </button>
+          </div>
+
           {/* Checklist */}
           <div className="space-y-1.5">
             {currentPage.docs.map(doc => (
