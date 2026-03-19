@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SalesProvider } from "@/store/SalesContext";
 import Index from "./pages/Index.tsx";
 import Settings from "./pages/Settings.tsx";
+import Reports from "./pages/Reports.tsx";
+import FullTable from "./pages/FullTable.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -20,6 +22,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/full-table" element={<FullTable />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -45,6 +45,23 @@ export default function DocumentChecklistView({ documents, arStatus, onUpdate, o
         ))}
       </div>
 
+      {/* Check All */}
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={() => {
+            const allChecked = currentPage.docs.every(d => localDocs[currentPage.key][d]);
+            setLocalDocs(prev => ({
+              ...prev,
+              [currentPage.key]: Object.fromEntries(currentPage.docs.map(d => [d, !allChecked])),
+            }));
+          }}
+          className="px-2 py-0.5 text-xs border border-border rounded hover:bg-accent transition-colors"
+        >
+          {currentPage.docs.every(d => localDocs[currentPage.key][d]) ? 'Uncheck All' : 'Check All'}
+        </button>
+      </div>
+
       {/* Table-style checklist */}
       <div className="border border-border rounded overflow-hidden">
         <table className="w-full text-sm">

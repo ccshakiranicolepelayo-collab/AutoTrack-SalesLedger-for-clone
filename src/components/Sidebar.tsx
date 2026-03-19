@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LayoutDashboard, Car, Users, Activity, DollarSign, Settings, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Car, Users, Activity, DollarSign, FileBarChart, Settings, Menu, X } from 'lucide-react';
 
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -7,14 +7,16 @@ const NAV_ITEMS = [
   { id: 'client-info', label: 'Client Information', icon: Users },
   { id: 'activity', label: 'Activity Tracking', icon: Activity },
   { id: 'total-gp', label: 'Total Gross Profit', icon: DollarSign },
+  { id: 'reports', label: 'View Reports', icon: FileBarChart, route: '/reports' },
 ];
 
 interface SidebarProps {
   onNavigate: (id: string) => void;
   onSettingsClick: () => void;
+  onRouteNavigate?: (route: string) => void;
 }
 
-export default function Sidebar({ onNavigate, onSettingsClick }: SidebarProps) {
+export default function Sidebar({ onNavigate, onSettingsClick, onRouteNavigate }: SidebarProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -51,7 +53,7 @@ export default function Sidebar({ onNavigate, onSettingsClick }: SidebarProps) {
           {NAV_ITEMS.map(item => (
             <button
               key={item.id}
-              onClick={() => { onNavigate(item.id); setOpen(false); }}
+              onClick={() => { if ((item as any).route && onRouteNavigate) { onRouteNavigate((item as any).route); } else { onNavigate(item.id); } setOpen(false); }}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded text-sm hover:bg-sidebar-accent transition-colors text-left"
             >
               <item.icon className="w-4 h-4 shrink-0" />
