@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SalesProvider } from "@/store/SalesContext";
 import Index from "./pages/Index.tsx";
 import Settings from "./pages/Settings.tsx";
+import Reports from "./pages/Reports.tsx";
+import FullTable from "./pages/FullTable.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
