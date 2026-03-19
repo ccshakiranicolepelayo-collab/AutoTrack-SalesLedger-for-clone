@@ -13,6 +13,7 @@ const NAV_ITEMS = [
 interface SidebarProps {
   onNavigate: (id: string) => void;
   onSettingsClick: () => void;
+  onRouteNavigate?: (route: string) => void;
 }
 
 export default function Sidebar({ onNavigate, onSettingsClick }: SidebarProps) {
