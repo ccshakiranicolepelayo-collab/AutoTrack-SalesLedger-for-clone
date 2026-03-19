@@ -53,9 +53,9 @@ export default function SettingsPage() {
         <h3 className="text-sm font-semibold mb-3">Date Format</h3>
         <div className="flex gap-2 mb-3">
           {([
-            { key: 'us', label: 'US (mm/dd/yyyy)' },
-            { key: 'eur', label: 'EUR (dd/mm/yyyy)' },
-            { key: 'jpn', label: 'JPN (yyyy/mm/dd)' },
+            { key: 'us', label: 'US (MM/DD/YYYY)' },
+            { key: 'eur', label: 'EUR (DD/MM/YYYY)' },
+            { key: 'jpn', label: 'JPN (YYYY/MM/DD)' },
           ] as const).map(f => (
             <button
               key={f.key}
