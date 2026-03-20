@@ -94,6 +94,8 @@
     --status-released-text: 142 60% 65%;
     --status-pending-bg: 0 50% 20%;
     --status-pending-text: 0 70% 70%;
+    --status-na-bg: 220 10% 22%;
+    --status-na-text: 220 10% 55%;
 
     --sidebar-background: 222 47% 6%;
     --sidebar-foreground: 210 40% 96%;
