@@ -127,6 +127,10 @@
     background-color: hsl(var(--status-pending-bg));
     color: hsl(var(--status-pending-text));
   }
+  .status-na {
+    background-color: hsl(var(--status-na-bg));
+    color: hsl(var(--status-na-text));
+  }
   .pastel-card-blue {
     background-color: hsl(var(--pastel-blue));
   }
