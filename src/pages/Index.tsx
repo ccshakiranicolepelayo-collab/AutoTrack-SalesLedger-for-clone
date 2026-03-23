@@ -60,7 +60,7 @@ export default function Index() {
       {/* Sale Detail Panel */}
       {selectedSale && (
         <>
-          <div className="fixed inset-0 z-20 bg-foreground/10" onClick={() => setSelectedSale(null)} />
+          <div className="fixed inset-0 z-20 bg-foreground/50" onClick={() => setSelectedSale(null)} />
           <SaleDetailPanel sale={selectedSale} onClose={() => setSelectedSale(null)} />
         </>
       )}

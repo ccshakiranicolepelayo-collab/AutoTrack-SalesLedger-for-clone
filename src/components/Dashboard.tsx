@@ -1,7 +1,7 @@
 import { useSales } from '@/store/SalesContext';
 import SummaryCard from './SummaryCard';
 import { StatusBadge } from './StatusBadge';
-import { Sale } from '@/types/sales';
+import { Sale, isCashOrCopo } from '@/types/sales';
 
 interface DashboardProps {
   onSelectSale: (sale: Sale) => void;
@@ -68,7 +68,13 @@ export default function Dashboard({ onSelectSale }: DashboardProps) {
               >
                 <td className="px-3 py-2 font-medium">{sale.cs}</td>
                 <td className="px-3 py-2">{sale.clientName}</td>
-                <td className="px-3 py-2"><StatusBadge status={sale.bankStatus} /></td>
+                <td className="px-3 py-2">
+                  {isCashOrCopo(sale.modeOfPayment) ? (
+                    <span className="status-na px-1.5 py-0.5 rounded text-xs">N/A</span>
+                  ) : (
+                    <StatusBadge status={sale.bankStatus} />
+                  )}
+                </td>
                 <td className="px-3 py-2"><StatusBadge status={sale.accountingStatus} /></td>
                 <td className="px-3 py-2"><StatusBadge status={sale.dealerStatus} /></td>
                 <td className="px-3 py-2"><StatusBadge status={sale.ltoStatus} /></td>

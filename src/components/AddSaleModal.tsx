@@ -24,7 +24,7 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
   const [form, setForm] = useState({
     cs: '', engineNo: '', chassisNo: '', brand: '', model: '',
     cost: '', branch: 'Carmona', bank: '', clientName: '', contact: '', address: '',
-    rate: '', orCr: '', modeOfPayment: 'cash' as PaymentMode, groupNumber: 1,
+    rate: '', orCr: '', modeOfPayment: 'cash' as PaymentMode,
   });
   const [grp, setGrp] = useState<number[]>(defaultGrp(settings.groupCount));
   const [docs, setDocs] = useState<DocumentChecklist>(createEmptyDocuments([], settings.accountingDocs, settings.dealerDocs, settings.ltoDocs));
@@ -104,7 +104,6 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
       ltoStatus: 'pending',
       arStatus,
       modeOfPayment: form.modeOfPayment,
-      groupNumber: form.groupNumber,
       documents: docs,
     };
     addSale(sale);
@@ -138,22 +137,22 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
               <div>
                 <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-2">Vehicle Info</h4>
                 {[
-                  { key: 'cs', label: 'CS# *' },
-                  { key: 'engineNo', label: 'Engine# *' },
-                  { key: 'chassisNo', label: 'Chassis# *' },
+                  { key: 'cs', label: 'CS#' },
+                  { key: 'engineNo', label: 'Engine#' },
+                  { key: 'chassisNo', label: 'Chassis#' },
                   { key: 'brand', label: 'Brand *' },
                 ].map(f => (
                   <div key={f.key} className="mb-2">
                     <label className="text-xs text-muted-foreground">{f.label}</label>
                     <input
-                      className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+                      className="w-full border border-dark rounded px-2 py-1.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
                       value={(form as any)[f.key]}
                       onChange={e => updateField(f.key, e.target.value)}
                     />
                   </div>
                 ))}
                 <div className="mb-2">
-                  <label className="text-xs text-muted-foreground">Model *</label>
+                  <label className="text-xs text-muted-foreground">Model</label>
                   <select
                     className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background"
                     value={form.model}
@@ -165,7 +164,7 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
                 </div>
                 <div className="grid grid-cols-2 gap-2 mb-2">
                   <div>
-                    <label className="text-xs text-muted-foreground">Unit Cost *</label>
+                    <label className="text-xs text-muted-foreground">Unit Cost</label>
                     <input
                       type="number"
                       className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
@@ -247,9 +246,9 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
               <div>
                 <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-2">Client Info</h4>
                 {[
-                  { key: 'clientName', label: 'Name *' },
-                  { key: 'contact', label: 'Contact *' },
-                  { key: 'address', label: 'Address *' },
+                  { key: 'clientName', label: 'Name' },
+                  { key: 'contact', label: 'Contact' },
+                  { key: 'address', label: 'Address' },
                 ].map(f => (
                   <div key={f.key} className="mb-2">
                     <label className="text-xs text-muted-foreground">{f.label}</label>
@@ -273,17 +272,6 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
                     <option value="copo">COPO</option>
                     <option value="bank_po">BANK PO</option>
                   </select>
-                </div>
-
-                <div className="mb-2">
-                  <label className="text-xs text-muted-foreground">Group Number</label>
-                  <input
-                    type="number"
-                    min={1}
-                    className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background"
-                    value={form.groupNumber}
-                    onChange={e => updateField('groupNumber', e.target.value)}
-                  />
                 </div>
 
                 <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-2 mt-4">Group Profit</h4>

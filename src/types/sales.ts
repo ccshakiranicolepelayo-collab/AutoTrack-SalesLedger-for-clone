@@ -32,7 +32,6 @@ export interface Sale {
   ltoStatus: StatusType;
   arStatus: ARStatusType;
   modeOfPayment: PaymentMode;
-  groupNumber: number;
   documents: DocumentChecklist;
 }
 
