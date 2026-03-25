@@ -296,8 +296,8 @@ export default function ActivityTracking({ onSelectSale }: ActivityTrackingProps
                       onClick={e => e.stopPropagation()}
                       onChange={e => { e.stopPropagation(); updateSale(sale.id, { orCrStatus: e.target.value as any }); }}
                     >
-                      <option value="na">na</option>
-                      <option value="released">released</option>
+                      <option value="na">N/A</option>
+                      <option value="released">Released</option>
                     </select>
                   </td>
                   {/* AR Status */}
