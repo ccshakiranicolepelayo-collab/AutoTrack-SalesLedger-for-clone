@@ -16,10 +16,17 @@ export default function SaleDetailPanel({ sale, onClose }: SaleDetailPanelProps)
   const [editField, setEditField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const [docTab, setDocTab] = useState(0);
+  const [selectedGroup, setSelectedGroup] = useState(sale.groupNumber);
+
+  // Ensure grp array has correct length based on settings
+  const normalizedGrp = [...sale.grp];
+  while (normalizedGrp.length < settings.groupCount) {
+    normalizedGrp.push(0);
+  }
 
   const [localSale, setLocalSale] = useState<Sale>({
     ...sale,
-    grp: [...sale.grp],
+    grp: normalizedGrp,
     documents: {
       bank: { ...sale.documents.bank },
       accounting: { ...sale.documents.accounting },
@@ -55,6 +62,10 @@ export default function SaleDetailPanel({ sale, onClose }: SaleDetailPanelProps)
       const newGrp = [...localSale.grp];
       newGrp[idx] = Number(editValue) || 0;
       setLocalSale(prev => ({ ...prev, grp: newGrp }));
+    } else if (field === 'groupNumber') {
+      const newGroupNumber = Number(editValue) || 1;
+      setLocalSale(prev => ({ ...prev, groupNumber: newGroupNumber }));
+      setSelectedGroup(newGroupNumber);
     } else {
       const numFields = ['cost', 'rate'];
       const val = numFields.includes(field) ? Number(editValue) || 0 : editValue;
@@ -129,6 +140,7 @@ export default function SaleDetailPanel({ sale, onClose }: SaleDetailPanelProps)
             <EditableField label="CS#" field="cs" value={localSale.cs} />
             <EditableField label="Engine#" field="engineNo" value={localSale.engineNo} />
             <EditableField label="Chassis#" field="chassisNo" value={localSale.chassisNo} />
+            <EditableField label="Color" field="color" value={localSale.color} />
             <EditableField label="Brand" field="brand" value={localSale.brand} />
             <EditableField label="Model" field="model" value={localSale.model} />
             <EditableField label="Unit Cost" field="cost" value={`₱${localSale.cost.toLocaleString()}`} />
@@ -174,13 +186,32 @@ export default function SaleDetailPanel({ sale, onClose }: SaleDetailPanelProps)
               <EditableField label="Name" field="clientName" value={localSale.clientName} />
               <EditableField label="Contact" field="contact" value={localSale.contact} />
               <EditableField label="Address" field="address" value={localSale.address} />
+              <EditableField label="Group Number" field="groupNumber" value={`${localSale.groupNumber}`} />
             </div>
 
-            <div className="border border-border rounded p-3 space-y-1">
+            <div className="border border-border rounded p-3 space-y-2">
               <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wide mb-2">Group Profit</h4>
-              {localSale.grp.map((g, i) => (
-                <EditableField key={i} label={`GRP${i + 1}`} field={`grp_${i}`} value={`₱${g.toLocaleString()}`} />
-              ))}
+              <div className="flex justify-between items-center py-1">
+                <label className="text-xs text-muted-foreground">Group Number</label>
+                <select
+                  value={selectedGroup}
+                  onChange={(e) => {
+                    const newGroupNumber = Number(e.target.value);
+                    setSelectedGroup(newGroupNumber);
+                    setLocalSale(prev => ({ ...prev, groupNumber: newGroupNumber }));
+                  }}
+                  className="text-sm border border-border rounded px-2 py-0.5 bg-background w-32"
+                >
+                  {Array.from({ length: settings.groupCount }, (_, i) => (
+                    <option key={i + 1} value={i + 1}>{`Group ${i + 1}`}</option>
+                  ))}
+                </select>
+              </div>
+              <EditableField 
+                label={`GP Amount (Group ${selectedGroup})`} 
+                field={`grp_${selectedGroup - 1}`} 
+                value={`₱${(localSale.grp[selectedGroup - 1] || 0).toLocaleString()}`} 
+              />
               <div className="flex justify-between items-center py-1 border-t border-border mt-2 pt-2">
                 <span className="text-xs font-semibold">Total Profit</span>
                 <span className="text-sm font-bold text-primary">₱{totalProfit.toLocaleString()}</span>

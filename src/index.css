@@ -4,7 +4,6 @@
 
 @layer base {
   :root {
-    --web-bg: 0 0% 0%;
     --background: 210 40% 98% / 0.5;
     --foreground: 215 28% 17%;
 
@@ -62,7 +61,7 @@
   }
 
   .dark {
-    --background: 222 47% 6%;
+    --background: 222 47% 6% / 0.7;
     --foreground: 210 40% 96%;
     --card: 222 47% 9%;
     --card-foreground: 210 40% 96%;
@@ -76,7 +75,7 @@
     --muted-foreground: 215 20% 65%;
     --accent: 217 33% 17%;
     --accent-foreground: 210 40% 96%;
-    --destructive: 0 63% 31%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 96%;
     --border: 217 33% 17%;
     --input: 217 33% 17%;
@@ -107,13 +106,13 @@
     --sidebar-border: 222 47% 12%;
     --sidebar-ring: 217 91% 60%;
   }
-  .bg-web-bg {
+  .bg-suzuki {
     @apply bg-background;
     position: relative;
     
   }
   
-  .bg-web-bg::before {
+  .bg-suzuki::before {
     content: '';
     position: absolute;
     top: 0;

@@ -22,9 +22,9 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
   const [dateRelease, setDateRelease] = useState<Date>(new Date());
 
   const [form, setForm] = useState({
-    cs: '', engineNo: '', chassisNo: '', brand: '', model: '',
+    cs: '', engineNo: '', chassisNo: '', color: '', brand: '', model: '',
     cost: '', branch: 'Carmona', bank: '', clientName: '', contact: '', address: '',
-    rate: '', orCr: '', modeOfPayment: 'cash' as PaymentMode,
+    rate: '', orCr: '', modeOfPayment: 'cash' as PaymentMode, groupNumber: '1',
   });
   const [grp, setGrp] = useState<number[]>(defaultGrp(settings.groupCount));
   const [docs, setDocs] = useState<DocumentChecklist>(createEmptyDocuments([], settings.accountingDocs, settings.dealerDocs, settings.ltoDocs));
@@ -45,7 +45,7 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
 
   const totalGrp = grp.reduce((a, b) => a + b, 0);
 
-  const isValid = form.cs && form.engineNo && form.chassisNo && form.brand && form.model && form.cost && form.clientName && form.contact && form.address;
+  const isValid = form.cs && form.engineNo && form.chassisNo && form.color && form.brand && form.model && form.cost && form.clientName && form.contact && form.address;
 
   // Build document pages dynamically
   const docPages = useMemo(() => {
@@ -86,6 +86,7 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
       cs: form.cs,
       engineNo: form.engineNo,
       chassisNo: form.chassisNo,
+      color: form.color,
       brand: form.brand,
       model: form.model,
       rate: Number(form.rate) || 0,
@@ -104,7 +105,7 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
       ltoStatus: 'pending',
       arStatus,
       modeOfPayment: form.modeOfPayment,
-      groupNumber: 1,
+      groupNumber: Number(form.groupNumber) || 1,
       documents: docs,
     };
     addSale(sale);
@@ -141,6 +142,7 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
                   { key: 'cs', label: 'CS#' },
                   { key: 'engineNo', label: 'Engine#' },
                   { key: 'chassisNo', label: 'Chassis#' },
+                  { key: 'color', label: 'Unit Color *' },
                   { key: 'brand', label: 'Brand *' },
                 ].map(f => (
                   <div key={f.key} className="mb-2">
@@ -275,22 +277,33 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
                   </select>
                 </div>
 
+                <div className="mb-2">
+                  <label className="text-xs text-muted-foreground">Group Number</label>
+                  <select
+                    className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background"
+                    value={form.groupNumber}
+                    onChange={e => updateField('groupNumber', e.target.value)}
+                  >
+                    {Array.from({ length: settings.groupCount }, (_, i) => (
+                      <option key={i + 1} value={i + 1}>{`Group ${i + 1}`}</option>
+                    ))}
+                  </select>
+                </div>
+
                 <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-2 mt-4">Group Profit</h4>
-                {grp.map((g, i) => (
-                  <div key={i} className="mb-2">
-                    <label className="text-xs text-muted-foreground">GRP{i + 1}</label>
-                    <input
-                      type="number"
-                      className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background"
-                      value={g || ''}
-                      onChange={e => {
-                        const newGrp = [...grp];
-                        newGrp[i] = Number(e.target.value) || 0;
-                        setGrp(newGrp);
-                      }}
-                    />
-                  </div>
-                ))}
+                <div className="mb-2">
+                  <label className="text-xs text-muted-foreground">GP Amount (Group {form.groupNumber})</label>
+                  <input
+                    type="number"
+                    className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background"
+                    value={grp[Number(form.groupNumber) - 1] || ''}
+                    onChange={e => {
+                      const newGrp = [...grp];
+                      newGrp[Number(form.groupNumber) - 1] = Number(e.target.value) || 0;
+                      setGrp(newGrp);
+                    }}
+                  />
+                </div>
                 <div className="text-sm font-medium">Total: ₱{totalGrp.toLocaleString()}</div>
               </div>
             </div>

@@ -14,6 +14,7 @@ export interface Sale {
   cs: string;
   engineNo: string;
   chassisNo: string;
+  color: string;
   brand: string;
   model: string;
   rate: number;

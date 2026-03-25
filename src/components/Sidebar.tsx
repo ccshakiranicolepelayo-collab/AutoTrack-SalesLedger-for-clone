@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LayoutDashboard, Car, Users, Activity, DollarSign, FileBarChart, Settings, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Car, Users, Activity, DollarSign, FileBarChart, Settings, Menu, X, LogOut } from 'lucide-react';
 
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -8,16 +8,29 @@ const NAV_ITEMS = [
   { id: 'activity', label: 'Activity Tracking', icon: Activity },
   { id: 'total-gp', label: 'Total Gross Profit', icon: DollarSign },
   { id: 'reports', label: 'View Reports', icon: FileBarChart, route: '/reports' },
+  { id: 'logout', label: 'Log Out', icon: LogOut },
 ];
 
 interface SidebarProps {
   onNavigate: (id: string) => void;
   onSettingsClick: () => void;
   onRouteNavigate?: (route: string) => void;
+  onLogout?: () => void;
 }
 
-export default function Sidebar({ onNavigate, onSettingsClick, onRouteNavigate }: SidebarProps) {
+export default function Sidebar({ onNavigate, onSettingsClick, onRouteNavigate, onLogout }: SidebarProps) {
   const [open, setOpen] = useState(false);
+
+  const handleNavClick = (item: typeof NAV_ITEMS[0]) => {
+    if (item.id === 'logout') {
+      onLogout?.();
+    } else if ((item as any).route && onRouteNavigate) {
+      onRouteNavigate((item as any).route);
+    } else {
+      onNavigate(item.id);
+    }
+    setOpen(false);
+  };
 
   return (
     <>
@@ -53,8 +66,10 @@ export default function Sidebar({ onNavigate, onSettingsClick, onRouteNavigate }
           {NAV_ITEMS.map(item => (
             <button
               key={item.id}
-              onClick={() => { if ((item as any).route && onRouteNavigate) { onRouteNavigate((item as any).route); } else { onNavigate(item.id); } setOpen(false); }}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded text-sm hover:bg-sidebar-accent transition-colors text-left"
+              onClick={() => handleNavClick(item)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded text-sm hover:bg-sidebar-accent transition-colors text-left ${
+                item.id === 'logout' ? 'text-destructive' : ''
+              }`}
             >
               <item.icon className="w-4 h-4 shrink-0" />
               {item.label}

@@ -36,7 +36,7 @@ export default function ClientInformation({ onSelectSale }: ClientInformationPro
 
   const grouped = useMemo(() => {
     const g = filteredSales.reduce<Record<string, Sale[]>>((acc, s) => {
-      const key = s.clientName || 'Unknown';
+      const key = `${s.clientName || 'Unknown'}|${s.contact || ''}|${s.address || ''}`;
       (acc[key] = acc[key] || []).push(s);
       return acc;
     }, {});
@@ -108,6 +108,7 @@ export default function ClientInformation({ onSelectSale }: ClientInformationPro
             {grouped.map(([client, clientSales]) =>
               clientSales.map((sale, idx) => {
                 const cashCopo = isCashOrCopo(sale.modeOfPayment);
+                const [clientName] = client.split('|');
                 return (
                   <tr
                     key={sale.id}
@@ -116,12 +117,12 @@ export default function ClientInformation({ onSelectSale }: ClientInformationPro
                   >
                     {idx === 0 && (
                       <>
-                        <td className="px-3 py-2 font-medium align-top" rowSpan={clientSales.length}>{client}</td>
+                        <td className="px-3 py-2 font-medium align-top" rowSpan={clientSales.length}>{clientName}</td>
                         <td className="px-3 py-2 align-top" rowSpan={clientSales.length}>{sale.address}</td>
                         <td className="px-3 py-2 align-top" rowSpan={clientSales.length}>{sale.contact}</td>
                       </>
                     )}
-                    <td className="px-3 py-2">{sale.brand} {sale.model}</td>
+                    <td className="px-3 py-2">{sale.color}/{sale.brand}/{sale.model}</td>
                     {/* Bank */}
                     <td className="px-3 py-2 text-xs">
                       {cashCopo ? (

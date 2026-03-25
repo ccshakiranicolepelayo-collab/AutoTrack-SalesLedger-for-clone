@@ -17,6 +17,7 @@ const fields: { key: keyof Sale; label: string }[] = [
   { key: 'clientName', label: 'Client Name' },
   { key: 'engineNo', label: 'Engine#' },
   { key: 'chassisNo', label: 'Chassis#' },
+  { key: 'color', label: 'Color' },
   { key: 'brand', label: 'Brand' },
   { key: 'model', label: 'Model' },
   { key: 'rate', label: 'Rate (%)' },
