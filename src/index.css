@@ -98,6 +98,8 @@
     --status-pending-text: 0 70% 70%;
     --status-na-bg: 220 10% 22%;
     --status-na-text: 220 10% 55%;
+    --status-na-orcr-bg: 25 60% 20%;
+    --status-na-orcr-text: 30 80% 65%;
 
     --sidebar-background: 222 47% 6%;
     --sidebar-foreground: 210 40% 96%;
