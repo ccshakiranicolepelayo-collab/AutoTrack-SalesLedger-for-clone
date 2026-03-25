@@ -108,9 +108,9 @@ export default function FullTable() {
         <table className="w-full text-xs border-collapse">
           <thead>
             <tr className="bg-muted text-muted-foreground">
-              {['CS#','Engine#','Chassis#','Brand','Model','Branch','Unit Cost','OR/CR','Date Release','Client Name','Contact','Address','Mode','Bank',
+              {['CS#','Engine#','Chassis#','Brand','Model','Branch','Unit Cost','Date Release','Client Name','Contact','Address','Mode','Bank',
                 ...Array.from({ length: settings.groupCount }, (_, i) => `Grp${i + 1}`),
-                'Gross','Accounting','Dealer','LTO','AR'
+                'Gross','Accounting','Dealer','LTO','OR/CR','AR'
               ].map(h => (
                 <th key={h} className="px-2 py-2 text-left font-semibold whitespace-nowrap border-b border-border">{h}</th>
               ))}
