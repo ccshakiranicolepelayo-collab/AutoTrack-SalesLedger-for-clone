@@ -37,7 +37,6 @@ export default function FullTable() {
           'Model': s.model,
           'Branch': s.branch,
           'Unit Cost': s.cost,
-          'OR/CR': s.orCrStatus === 'na' ? 'N/A' : 'Released',
           'Date Release': formatDateBySettings(s.dateRelease, settings),
           'Client Name': s.clientName,
           'Contact': s.contact,
