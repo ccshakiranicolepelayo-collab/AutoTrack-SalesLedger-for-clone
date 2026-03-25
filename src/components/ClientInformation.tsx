@@ -186,7 +186,7 @@ export default function ClientInformation({ onSelectSale }: ClientInformationPro
                         onClick={e => e.stopPropagation()}
                         onChange={e => { e.stopPropagation(); updateSale(sale.id, { orCrStatus: e.target.value as any }); }}
                       >
-                        {orCrOptions.map(o => <option key={o} value={o}>{o}</option>)}
+                        {orCrOptions.map(o => <option key={o} value={o}>{o === 'na' ? 'N/A' : o === 'released' ? 'Released' : o}</option>)}
                       </select>
                     </td>
                     <td className="px-3 py-2">

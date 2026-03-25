@@ -60,7 +60,7 @@ export default function ActivityTracking({ onSelectSale }: ActivityTrackingProps
 
   const statusClass = (status: string, type: 'default' | 'ar' | 'orCr' = 'default') => {
     if (type === 'ar') return status === 'paid' ? 'status-released' : 'status-pending';
-    if (type === 'orCr') return status === 'released' ? 'status-released' : 'status-na';
+    if (type === 'orCr') return status === 'released' ? 'status-released' : 'status-na-orcr';
     return status === 'released' ? 'status-released' : 'status-pending';
   };
 

@@ -48,6 +48,7 @@ export default function FullTable() {
           'Accounting': docStatus(s.documents.accounting),
           'Dealer': docStatus(s.documents.dealer),
           'LTO': docStatus(s.documents.lto),
+          'OR/CR': s.orCrStatus === 'na' ? 'N/A' : 'Released',
           'AR': s.arStatus === 'paid' ? 'Paid' : 'Pending',
         };
       });

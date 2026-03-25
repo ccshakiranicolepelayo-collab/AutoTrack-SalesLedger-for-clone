@@ -157,6 +157,10 @@
     background-color: hsl(var(--status-na-bg));
     color: hsl(var(--status-na-text));
   }
+  .status-na-orcr {
+    background-color: hsl(var(--status-na-orcr-bg));
+    color: hsl(var(--status-na-orcr-text));
+  }
   .pastel-card-blue {
     background-color: hsl(var(--pastel-blue));
   }
