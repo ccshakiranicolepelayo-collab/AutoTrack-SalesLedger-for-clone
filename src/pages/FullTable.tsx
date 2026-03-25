@@ -152,6 +152,13 @@ export default function FullTable() {
                     <span className={statusColor(ltoStat)}>{ltoStat}</span>
                   </td>
                   <td className="px-2 py-1.5">
+                    {s.orCrStatus === 'na' ? (
+                      <span className="status-na-orcr px-1.5 py-0.5 rounded text-xs">N/A</span>
+                    ) : (
+                      <span className="status-released px-1.5 py-0.5 rounded text-xs">Released</span>
+                    )}
+                  </td>
+                  <td className="px-2 py-1.5">
                     <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${s.arStatus === 'paid' ? 'status-released' : 'status-pending'}`}>
                       {s.arStatus === 'paid' ? 'Paid' : 'Pending'}
                     </span>
