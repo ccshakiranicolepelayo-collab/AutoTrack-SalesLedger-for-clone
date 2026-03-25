@@ -23,41 +23,51 @@ export default function FullTable() {
     [...sales].sort((a, b) => (b.dateRelease || '').localeCompare(a.dateRelease || '')),
     [sales]
   );
+  
 
   const exportToExcel = () => {
-    const data = sorted.map(s => {
-      const cashCopo = isCashOrCopo(s.modeOfPayment);
-      return {
-        'CS#': s.cs,
-        'Engine#': s.engineNo,
-        'Chassis#': s.chassisNo,
-        'Brand': s.brand,
-        'Model': s.model,
-        'Branch': s.branch,
-        'Unit Cost': s.cost,
-        'OR/CR': s.orCr,
-        'Date Release': formatDateBySettings(s.dateRelease, settings),
-        'Client Name': s.clientName,
-        'Contact': s.contact,
-        'Address': s.address,
-        'Mode': s.modeOfPayment.toUpperCase(),
-        'Bank': cashCopo ? 'N/A' : (s.bank || 'N/A'),
-        ...Object.fromEntries(s.grp.map((g, i) => [`Grp${i + 1}`, g])),
-        'Gross': s.grp.reduce((a, b) => a + b, 0),
-        'Accounting': docStatus(s.documents.accounting),
-        'Dealer': docStatus(s.documents.dealer),
-        'LTO': docStatus(s.documents.lto),
-        'AR': s.arStatus === 'paid' ? 'Paid' : 'Pending',
-      };
-    });
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Sales');
-    const colWidths = Object.keys(data[0] || {}).map(key => ({
-      wch: Math.max(key.length, ...data.map(r => String((r as any)[key] || '').length)) + 2
-    }));
-    ws['!cols'] = colWidths;
-    XLSX.writeFile(wb, 'vehicle_sales_export.xlsx');
+    try {
+      const data = sorted.map(s => {
+        const cashCopo = isCashOrCopo(s.modeOfPayment);
+        return {
+          'CS#': s.cs,
+          'Engine#': s.engineNo,
+          'Chassis#': s.chassisNo,
+          'Brand': s.brand,
+          'Model': s.model,
+          'Branch': s.branch,
+          'Unit Cost': s.cost,
+          'OR/CR': s.orCrStatus === 'na' ? 'N/A' : 'Released',
+          'Date Release': formatDateBySettings(s.dateRelease, settings),
+          'Client Name': s.clientName,
+          'Contact': s.contact,
+          'Address': s.address,
+          'Mode': s.modeOfPayment.toUpperCase(),
+          'Bank': cashCopo ? 'N/A' : (s.bank || 'N/A'),
+          ...Object.fromEntries(s.grp.map((g, i) => [`Grp${i + 1}`, g])),
+          'Gross': s.grp.reduce((a, b) => a + b, 0),
+          'Accounting': docStatus(s.documents.accounting),
+          'Dealer': docStatus(s.documents.dealer),
+          'LTO': docStatus(s.documents.lto),
+          'AR': s.arStatus === 'paid' ? 'Paid' : 'Pending',
+        };
+      });
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Sales');
+
+      // Auto-calculate column widths
+      const colWidths = Object.keys(data[0] || {}).map(key => ({
+        wch: Math.max(key.length, ...data.map(r => String((r as any)[key] || '').length)) + 2
+      }));
+      ws['!cols'] = colWidths;
+
+      XLSX.writeFile(wb, 'VehicleSales_FullTable.xlsx');
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Failed to export. Please try again.');
+    }
   };
 
   const scrollTo = (id: string) => {
@@ -73,7 +83,7 @@ export default function FullTable() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-suzuki">
       <Sidebar onNavigate={scrollTo} onSettingsClick={() => navigate('/settings')} onRouteNavigate={(r) => navigate(r)} />
 
       <header className="sticky top-0 z-20 bg-card border-b border-border px-4 py-2.5 flex items-center justify-between">
@@ -122,7 +132,13 @@ export default function FullTable() {
                   <td className="px-2 py-1.5">{s.model}</td>
                   <td className="px-2 py-1.5">{s.branch}</td>
                   <td className="px-2 py-1.5 text-right">₱{s.cost.toLocaleString()}</td>
-                  <td className="px-2 py-1.5">{s.orCr}</td>
+                  <td className="px-2 py-1.5">
+                    {s.orCrStatus === 'na' ? (
+                      <span className="status-na px-1.5 py-0.5 rounded text-xs">N/A</span>
+                    ) : (
+                      <span className="status-released px-1.5 py-0.5 rounded text-xs">Released</span>
+                    )}
+                  </td>
                   <td className="px-2 py-1.5 whitespace-nowrap">{formatDateBySettings(s.dateRelease, settings)}</td>
                   <td className="px-2 py-1.5">{s.clientName}</td>
                   <td className="px-2 py-1.5">{s.contact}</td>

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useSales } from '@/store/SalesContext';
 import { Sale, StatusType, ARStatusType, isCashOrCopo } from '@/types/sales';
 import { Search, ArrowUp, ArrowDown } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ActivityTrackingProps {
   onSelectSale: (sale: Sale) => void;
@@ -57,9 +58,10 @@ export default function ActivityTracking({ onSelectSale }: ActivityTrackingProps
     return result;
   }, [sales, search, sortKey, sortDir]);
 
-  const statusClass = (status: string, type: 'default' | 'ar' = 'default') => {
-    const isGood = type === 'ar' ? status === 'paid' : status === 'released';
-    return isGood ? 'status-released' : 'status-pending';
+  const statusClass = (status: string, type: 'default' | 'ar' | 'orCr' = 'default') => {
+    if (type === 'ar') return status === 'paid' ? 'status-released' : 'status-pending';
+    if (type === 'orCr') return status === 'released' ? 'status-released' : 'status-na';
+    return status === 'released' ? 'status-released' : 'status-pending';
   };
 
   const sortableHeaders = [
@@ -105,6 +107,7 @@ export default function ActivityTracking({ onSelectSale }: ActivityTrackingProps
               <th className="px-3 py-2 font-medium" colSpan={2}>Accounting</th>
               <th className="px-3 py-2 font-medium" colSpan={2}>Dealer</th>
               <th className="px-3 py-2 font-medium" colSpan={2}>LTO</th>
+              <th className="px-3 py-2 font-medium">OR/CR</th>
               <th className="px-3 py-2 font-medium">AR</th>
             </tr>
             <tr className="bg-muted/50 text-left text-xs">
@@ -120,11 +123,12 @@ export default function ActivityTracking({ onSelectSale }: ActivityTrackingProps
               <th className="px-3 py-1">Status</th>
               <th className="px-3 py-1">Missing/Complete</th>
               <th className="px-3 py-1">Status</th>
+              <th className="px-3 py-1">Status</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
-              <tr><td colSpan={12} className="px-3 py-8 text-center text-muted-foreground">No records</td></tr>
+              <tr><td colSpan={13} className="px-3 py-8 text-center text-muted-foreground">No records</td></tr>
             )}
             {filtered.map(sale => {
               const cashCopo = isCashOrCopo(sale.modeOfPayment);
@@ -157,8 +161,30 @@ export default function ActivityTracking({ onSelectSale }: ActivityTrackingProps
                       </select>
                     )}
                   </td>
-                  <td className="px-3 py-2 text-xs max-w-[150px] truncate" title={cashCopo ? 'N/A' : bankMissing.join(', ')}>
-                    <MissingLabel missing={bankMissing} status={sale.bankStatus} isNA={cashCopo} />
+                  <td className="px-3 py-2 text-xs max-w-[150px] truncate">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help inline-block">
+                          <MissingLabel missing={bankMissing} status={sale.bankStatus} isNA={cashCopo} />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <div className="space-y-2">
+                          {cashCopo ? (
+                            <p className="text-xs">Not applicable for cash/COPO sales</p>
+                          ) : bankMissing.length > 0 ? (
+                            <>
+                              <p className="font-semibold text-xs">Missing Bank Documents:</p>
+                              <ul className="list-disc pl-4 space-y-1">
+                                {bankMissing.map(doc => <li key={doc} className="text-xs">{doc}</li>)}
+                              </ul>
+                            </>
+                          ) : (
+                            <p className="text-xs">All documents complete</p>
+                          )}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
                   </td>
                   {/* Accounting */}
                   <td className="px-3 py-2">
@@ -171,8 +197,28 @@ export default function ActivityTracking({ onSelectSale }: ActivityTrackingProps
                       {statusOptions.map(o => <option key={o} value={o}>{o}</option>)}
                     </select>
                   </td>
-                  <td className="px-3 py-2 text-xs max-w-[150px] truncate" title={accMissing.join(', ')}>
-                    <MissingLabel missing={accMissing} status={sale.accountingStatus} />
+                  <td className="px-3 py-2 text-xs max-w-[150px] truncate">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help inline-block">
+                          <MissingLabel missing={accMissing} status={sale.accountingStatus} />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <div className="space-y-2">
+                          {accMissing.length > 0 ? (
+                            <>
+                              <p className="font-semibold text-xs">Missing Accounting Documents:</p>
+                              <ul className="list-disc pl-4 space-y-1">
+                                {accMissing.map(doc => <li key={doc} className="text-xs">{doc}</li>)}
+                              </ul>
+                            </>
+                          ) : (
+                            <p className="text-xs">All documents complete</p>
+                          )}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
                   </td>
                   {/* Dealer */}
                   <td className="px-3 py-2">
@@ -185,8 +231,28 @@ export default function ActivityTracking({ onSelectSale }: ActivityTrackingProps
                       {statusOptions.map(o => <option key={o} value={o}>{o}</option>)}
                     </select>
                   </td>
-                  <td className="px-3 py-2 text-xs max-w-[150px] truncate" title={dealerMissing.join(', ')}>
-                    <MissingLabel missing={dealerMissing} status={sale.dealerStatus} />
+                  <td className="px-3 py-2 text-xs max-w-[150px] truncate">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help inline-block">
+                          <MissingLabel missing={dealerMissing} status={sale.dealerStatus} />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <div className="space-y-2">
+                          {dealerMissing.length > 0 ? (
+                            <>
+                              <p className="font-semibold text-xs">Missing Dealer Documents:</p>
+                              <ul className="list-disc pl-4 space-y-1">
+                                {dealerMissing.map(doc => <li key={doc} className="text-xs">{doc}</li>)}
+                              </ul>
+                            </>
+                          ) : (
+                            <p className="text-xs">All documents complete</p>
+                          )}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
                   </td>
                   {/* LTO */}
                   <td className="px-3 py-2">
@@ -199,10 +265,42 @@ export default function ActivityTracking({ onSelectSale }: ActivityTrackingProps
                       {statusOptions.map(o => <option key={o} value={o}>{o}</option>)}
                     </select>
                   </td>
-                  <td className="px-3 py-2 text-xs max-w-[150px] truncate" title={ltoMissing.join(', ')}>
-                    <MissingLabel missing={ltoMissing} status={sale.ltoStatus} />
+                  <td className="px-3 py-2 text-xs max-w-[150px] truncate">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help inline-block">
+                          <MissingLabel missing={ltoMissing} status={sale.ltoStatus} />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <div className="space-y-2">
+                          {ltoMissing.length > 0 ? (
+                            <>
+                              <p className="font-semibold text-xs">Missing LTO Documents:</p>
+                              <ul className="list-disc pl-4 space-y-1">
+                                {ltoMissing.map(doc => <li key={doc} className="text-xs">{doc}</li>)}
+                              </ul>
+                            </>
+                          ) : (
+                            <p className="text-xs">All documents complete</p>
+                          )}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
                   </td>
                   {/* AR */}
+                  <td className="px-3 py-2">
+                    <select
+                      className={`text-xs border border-border rounded px-1 py-0.5 ${statusClass(sale.orCrStatus, 'orCr')}`}
+                      value={sale.orCrStatus}
+                      onClick={e => e.stopPropagation()}
+                      onChange={e => { e.stopPropagation(); updateSale(sale.id, { orCrStatus: e.target.value as any }); }}
+                    >
+                      <option value="na">na</option>
+                      <option value="released">released</option>
+                    </select>
+                  </td>
+                  {/* AR Status */}
                   <td className="px-3 py-2">
                     <select
                       className={`text-xs border border-border rounded px-1 py-0.5 ${statusClass(sale.arStatus, 'ar')}`}

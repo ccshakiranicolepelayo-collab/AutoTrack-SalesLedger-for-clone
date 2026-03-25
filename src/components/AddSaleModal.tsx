@@ -21,10 +21,13 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
   const [docPage, setDocPage] = useState(0);
   const [dateRelease, setDateRelease] = useState<Date>(new Date());
 
+  // Ensure groupNames exists (for backward compatibility with old data)
+  const groupNames = settings.groupNames || Array.from({ length: settings.groupCount }, (_, i) => `Group ${i + 1}`);
+
   const [form, setForm] = useState({
-    cs: '', engineNo: '', chassisNo: '', brand: '', model: '',
+    cs: '', engineNo: '', chassisNo: '', color: '', brand: '', model: '',
     cost: '', branch: 'Carmona', bank: '', clientName: '', contact: '', address: '',
-    rate: '', orCr: '', modeOfPayment: 'cash' as PaymentMode, groupNumber: 1,
+    rate: '', orCr: 'na', modeOfPayment: 'cash' as PaymentMode, groupNumber: '1',
   });
   const [grp, setGrp] = useState<number[]>(defaultGrp(settings.groupCount));
   const [docs, setDocs] = useState<DocumentChecklist>(createEmptyDocuments([], settings.accountingDocs, settings.dealerDocs, settings.ltoDocs));
@@ -45,7 +48,7 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
 
   const totalGrp = grp.reduce((a, b) => a + b, 0);
 
-  const isValid = form.cs && form.engineNo && form.chassisNo && form.brand && form.model && form.cost && form.clientName && form.contact && form.address;
+  const isValid = form.cs && form.engineNo && form.chassisNo && form.color && form.brand && form.model && form.cost && form.clientName && form.contact && form.address;
 
   // Build document pages dynamically
   const docPages = useMemo(() => {
@@ -86,11 +89,12 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
       cs: form.cs,
       engineNo: form.engineNo,
       chassisNo: form.chassisNo,
+      color: form.color,
       brand: form.brand,
       model: form.model,
       rate: Number(form.rate) || 0,
       cost: Number(form.cost) || 0,
-      orCr: form.orCr,
+      orCr: form.orCr as any,
       dateRelease: format(dateRelease, 'yyyy-MM-dd'),
       branch: form.branch,
       bank: cashCopo ? 'N/A' : (form.bank || 'N/A'),
@@ -102,9 +106,10 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
       accountingStatus: 'pending',
       dealerStatus: 'pending',
       ltoStatus: 'pending',
+      orCrStatus: form.orCr as any,
       arStatus,
       modeOfPayment: form.modeOfPayment,
-      groupNumber: form.groupNumber,
+      groupNumber: Number(form.groupNumber) || 1,
       documents: docs,
     };
     addSale(sale);
@@ -138,22 +143,23 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
               <div>
                 <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-2">Vehicle Info</h4>
                 {[
-                  { key: 'cs', label: 'CS# *' },
-                  { key: 'engineNo', label: 'Engine# *' },
-                  { key: 'chassisNo', label: 'Chassis# *' },
+                  { key: 'cs', label: 'CS#' },
+                  { key: 'engineNo', label: 'Engine#' },
+                  { key: 'chassisNo', label: 'Chassis#' },
+                  { key: 'color', label: 'Unit Color *' },
                   { key: 'brand', label: 'Brand *' },
                 ].map(f => (
                   <div key={f.key} className="mb-2">
                     <label className="text-xs text-muted-foreground">{f.label}</label>
                     <input
-                      className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+                      className="w-full border border-dark rounded px-2 py-1.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
                       value={(form as any)[f.key]}
                       onChange={e => updateField(f.key, e.target.value)}
                     />
                   </div>
                 ))}
                 <div className="mb-2">
-                  <label className="text-xs text-muted-foreground">Model *</label>
+                  <label className="text-xs text-muted-foreground">Model</label>
                   <select
                     className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background"
                     value={form.model}
@@ -165,7 +171,7 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
                 </div>
                 <div className="grid grid-cols-2 gap-2 mb-2">
                   <div>
-                    <label className="text-xs text-muted-foreground">Unit Cost *</label>
+                    <label className="text-xs text-muted-foreground">Unit Cost</label>
                     <input
                       type="number"
                       className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
@@ -207,11 +213,14 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground">OR/CR</label>
-                    <input
-                      className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+                    <select
+                      className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background"
                       value={form.orCr}
                       onChange={e => updateField('orCr', e.target.value)}
-                    />
+                    >
+                      <option value="na">N/A</option>
+                      <option value="released">Released</option>
+                    </select>
                   </div>
                 </div>
                 <div className="mb-2">
@@ -247,9 +256,9 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
               <div>
                 <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-2">Client Info</h4>
                 {[
-                  { key: 'clientName', label: 'Name *' },
-                  { key: 'contact', label: 'Contact *' },
-                  { key: 'address', label: 'Address *' },
+                  { key: 'clientName', label: 'Name' },
+                  { key: 'contact', label: 'Contact' },
+                  { key: 'address', label: 'Address' },
                 ].map(f => (
                   <div key={f.key} className="mb-2">
                     <label className="text-xs text-muted-foreground">{f.label}</label>
@@ -277,31 +286,31 @@ export default function AddSaleModal({ onClose }: AddSaleModalProps) {
 
                 <div className="mb-2">
                   <label className="text-xs text-muted-foreground">Group Number</label>
-                  <input
-                    type="number"
-                    min={1}
+                  <select
                     className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background"
                     value={form.groupNumber}
                     onChange={e => updateField('groupNumber', e.target.value)}
-                  />
+                  >
+                    {Array.from({ length: settings.groupCount }, (_, i) => (
+                      <option key={i + 1} value={i + 1}>{groupNames[i] || `Group ${i + 1}`}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-2 mt-4">Group Profit</h4>
-                {grp.map((g, i) => (
-                  <div key={i} className="mb-2">
-                    <label className="text-xs text-muted-foreground">GRP{i + 1}</label>
-                    <input
-                      type="number"
-                      className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background"
-                      value={g || ''}
-                      onChange={e => {
-                        const newGrp = [...grp];
-                        newGrp[i] = Number(e.target.value) || 0;
-                        setGrp(newGrp);
-                      }}
-                    />
-                  </div>
-                ))}
+                <div className="mb-2">
+                  <label className="text-xs text-muted-foreground">GP Amount ({groupNames[Number(form.groupNumber) - 1] || `Group ${form.groupNumber}`})</label>
+                  <input
+                    type="number"
+                    className="w-full border border-border rounded px-2 py-1.5 text-sm bg-background"
+                    value={grp[Number(form.groupNumber) - 1] || ''}
+                    onChange={e => {
+                      const newGrp = [...grp];
+                      newGrp[Number(form.groupNumber) - 1] = Number(e.target.value) || 0;
+                      setGrp(newGrp);
+                    }}
+                  />
+                </div>
                 <div className="text-sm font-medium">Total: ₱{totalGrp.toLocaleString()}</div>
               </div>
             </div>

@@ -1,5 +1,6 @@
 export type StatusType = 'pending' | 'released';
 export type ARStatusType = 'pending' | 'paid';
+export type ORCRStatusType = 'na' | 'released';
 export type PaymentMode = 'cash' | 'fin' | 'copo' | 'bank_po';
 
 export interface DocumentChecklist {
@@ -14,11 +15,12 @@ export interface Sale {
   cs: string;
   engineNo: string;
   chassisNo: string;
+  color: string;
   brand: string;
   model: string;
   rate: number;
   cost: number;
-  orCr: string;
+  orCr: ORCRStatusType;
   dateRelease: string;
   branch: string;
   bank: string;
@@ -30,6 +32,7 @@ export interface Sale {
   accountingStatus: StatusType;
   dealerStatus: StatusType;
   ltoStatus: StatusType;
+  orCrStatus: ORCRStatusType;
   arStatus: ARStatusType;
   modeOfPayment: PaymentMode;
   groupNumber: number;
@@ -41,6 +44,7 @@ export interface AppSettings {
   dateFormat: 'us' | 'eur' | 'jpn';
   dateLength: 'short' | 'long';
   groupCount: number;
+  groupNames: string[];
   vehicleModels: string[];
   accountingDocs: string[];
   dealerDocs: string[];
@@ -162,6 +166,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   dateFormat: 'us',
   dateLength: 'short',
   groupCount: 3,
+  groupNames: ['Group 1', 'Group 2', 'Group 3'],
   vehicleModels: ['Vios', 'Hilux', 'Fortuner', 'Innova', 'Wigo', 'Raize', 'Rush', 'Avanza'],
   accountingDocs: [...ACCOUNTING_DOCS],
   dealerDocs: [...DEALER_DOCS],

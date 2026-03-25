@@ -17,6 +17,7 @@ export default function ClientInformation({ onSelectSale }: ClientInformationPro
   const [sortDir, setSortDir] = useState<SortDir>('asc');
 
   const statusOptions = ['pending', 'released'] as const;
+  const orCrOptions = ['na', 'released'] as const;
   const arOptions = ['pending', 'paid'] as const;
 
   const toggleSort = (key: string) => {
@@ -36,7 +37,7 @@ export default function ClientInformation({ onSelectSale }: ClientInformationPro
 
   const grouped = useMemo(() => {
     const g = filteredSales.reduce<Record<string, Sale[]>>((acc, s) => {
-      const key = s.clientName || 'Unknown';
+      const key = `${s.clientName || 'Unknown'}|${s.contact || ''}|${s.address || ''}`;
       (acc[key] = acc[key] || []).push(s);
       return acc;
     }, {});
@@ -48,9 +49,10 @@ export default function ClientInformation({ onSelectSale }: ClientInformationPro
     return entries;
   }, [filteredSales, sortKey, sortDir]);
 
-  const statusClass = (status: string, type: 'default' | 'ar' = 'default') => {
-    const isGood = type === 'ar' ? status === 'paid' : status === 'released';
-    return isGood ? 'status-released' : 'status-pending';
+  const statusClass = (status: string, type: 'default' | 'ar' | 'orCr' = 'default') => {
+    if (type === 'ar') return status === 'paid' ? 'status-released' : 'status-pending';
+    if (type === 'orCr') return status === 'released' ? 'status-released' : 'status-na';
+    return status === 'released' ? 'status-released' : 'status-pending';
   };
 
   const headers = [
@@ -63,6 +65,7 @@ export default function ClientInformation({ onSelectSale }: ClientInformationPro
     { key: 'ltoStatus', label: 'LTO Status' },
     { key: 'dealerStatus', label: 'Dealer Status' },
     { key: 'accountingStatus', label: 'Accounting' },
+    { key: 'orCrStatus', label: 'OR/CR Status' },
     { key: 'arStatus', label: 'AR Status' },
   ];
 
@@ -103,11 +106,12 @@ export default function ClientInformation({ onSelectSale }: ClientInformationPro
           </thead>
           <tbody>
             {grouped.length === 0 && (
-              <tr><td colSpan={10} className="px-3 py-8 text-center text-muted-foreground">No records</td></tr>
+              <tr><td colSpan={11} className="px-3 py-8 text-center text-muted-foreground">No records</td></tr>
             )}
             {grouped.map(([client, clientSales]) =>
               clientSales.map((sale, idx) => {
                 const cashCopo = isCashOrCopo(sale.modeOfPayment);
+                const [clientName] = client.split('|');
                 return (
                   <tr
                     key={sale.id}
@@ -116,12 +120,12 @@ export default function ClientInformation({ onSelectSale }: ClientInformationPro
                   >
                     {idx === 0 && (
                       <>
-                        <td className="px-3 py-2 font-medium align-top" rowSpan={clientSales.length}>{client}</td>
+                        <td className="px-3 py-2 font-medium align-top" rowSpan={clientSales.length}>{clientName}</td>
                         <td className="px-3 py-2 align-top" rowSpan={clientSales.length}>{sale.address}</td>
                         <td className="px-3 py-2 align-top" rowSpan={clientSales.length}>{sale.contact}</td>
                       </>
                     )}
-                    <td className="px-3 py-2">{sale.brand} {sale.model}</td>
+                    <td className="px-3 py-2">{sale.color}/{sale.brand}/{sale.model}</td>
                     {/* Bank */}
                     <td className="px-3 py-2 text-xs">
                       {cashCopo ? (
@@ -173,6 +177,16 @@ export default function ClientInformation({ onSelectSale }: ClientInformationPro
                         onChange={e => { e.stopPropagation(); updateSale(sale.id, { accountingStatus: e.target.value as any }); }}
                       >
                         {statusOptions.map(o => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                    </td>
+                    <td className="px-3 py-2">
+                      <select
+                        className={`text-xs border border-border rounded px-1 py-0.5 ${statusClass(sale.orCrStatus, 'orCr')}`}
+                        value={sale.orCrStatus}
+                        onClick={e => e.stopPropagation()}
+                        onChange={e => { e.stopPropagation(); updateSale(sale.id, { orCrStatus: e.target.value as any }); }}
+                      >
+                        {orCrOptions.map(o => <option key={o} value={o}>{o}</option>)}
                       </select>
                     </td>
                     <td className="px-3 py-2">

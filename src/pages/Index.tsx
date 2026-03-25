@@ -10,6 +10,7 @@ import TotalGP from '@/components/TotalGP';
 import SaleDetailPanel from '@/components/SaleDetailPanel';
 import AddSaleModal from '@/components/AddSaleModal';
 import { Sale } from '@/types/sales';
+import { getDb, writeDb } from '@/lib/db';
 
 export default function Index() {
   const navigate = useNavigate();
@@ -21,9 +22,16 @@ export default function Index() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleLogout = () => {
+    const db = getDb();
+    db.data.auth.authenticated = false;
+    writeDb();
+    window.location.href = '/';
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar onNavigate={scrollTo} onSettingsClick={() => navigate('/settings')} onRouteNavigate={(r) => navigate(r)} />
+    <div className="min-h-screen bg-suzuki">
+      <Sidebar onNavigate={scrollTo} onSettingsClick={() => navigate('/settings')} onRouteNavigate={(r) => navigate(r)} onLogout={handleLogout} />
 
       {/* Sticky header */}
       <header className="sticky top-0 z-20 bg-card border-b border-border px-4 py-2.5 flex items-center justify-between ml-0">
@@ -60,7 +68,7 @@ export default function Index() {
       {/* Sale Detail Panel */}
       {selectedSale && (
         <>
-          <div className="fixed inset-0 z-20 bg-foreground/10" onClick={() => setSelectedSale(null)} />
+          <div className="fixed inset-0 z-20 bg-foreground/50" onClick={() => setSelectedSale(null)} />
           <SaleDetailPanel sale={selectedSale} onClose={() => setSelectedSale(null)} />
         </>
       )}
